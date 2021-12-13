@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:ffi';
 
 import 'package:flutter/material.dart';
@@ -67,7 +68,7 @@ class _MyHomePageState extends State<MyHomePage> {
         Fluttertoast.showToast(
             msg: "Tarefa removida com sucesso",
             toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.CENTER,
+            gravity: ToastGravity.BOTTOM,
             timeInSecForIosWeb: 1,
             backgroundColor: Colors.red,
             textColor: Colors.white,
@@ -76,7 +77,7 @@ class _MyHomePageState extends State<MyHomePage> {
         Fluttertoast.showToast(
             msg: "Tarefa não encontrada",
             toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.CENTER,
+            gravity: ToastGravity.BOTTOM,
             timeInSecForIosWeb: 1,
             backgroundColor: Colors.red,
             textColor: Colors.white,
@@ -94,7 +95,7 @@ class _MyHomePageState extends State<MyHomePage> {
         Fluttertoast.showToast(
             msg: "Tarefa editada com sucesso",
             toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.CENTER,
+            gravity: ToastGravity.BOTTOM,
             timeInSecForIosWeb: 1,
             backgroundColor: Colors.red,
             textColor: Colors.white,
@@ -103,7 +104,7 @@ class _MyHomePageState extends State<MyHomePage> {
         Fluttertoast.showToast(
             msg: "Tarefa não encontrada",
             toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.CENTER,
+            gravity: ToastGravity.BOTTOM,
             timeInSecForIosWeb: 1,
             backgroundColor: Colors.red,
             textColor: Colors.white,
@@ -127,7 +128,7 @@ class _MyHomePageState extends State<MyHomePage> {
       Fluttertoast.showToast(
           msg: "Tarefa vazia. Tente escrever algo",
           toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
+          gravity: ToastGravity.BOTTOM,
           timeInSecForIosWeb: 1,
           backgroundColor: Colors.red,
           textColor: Colors.white,
@@ -172,13 +173,19 @@ class _MyHomePageState extends State<MyHomePage> {
               itemCount: tarefas.length,
               itemBuilder: (context, index) {
                 return Container(
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom:
+                            BorderSide(color: Colors.cyanAccent, width: 3.0),
+                      ),
+                    ),
                     width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height / 10,
+                    height: MediaQuery.of(context).size.height / 15,
                     child: Row(
                       children: <Widget>[
                         Container(
                             width: MediaQuery.of(context).size.width / 2,
-                            height: MediaQuery.of(context).size.height / 10,
+                            height: MediaQuery.of(context).size.height / 15,
                             alignment: AlignmentDirectional.center,
                             child: Text(tarefas[index].values.last)),
                         ButtonBar(
@@ -193,7 +200,6 @@ class _MyHomePageState extends State<MyHomePage> {
                               onPressed: () {
                                 showModalBottomSheet(
                                   context: context,
-                                  
                                   enableDrag: true,
                                   isDismissible: true,
                                   useRootNavigator: true,
@@ -235,6 +241,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                                           editEntry(
                                                               tarefas[index],
                                                               ntarefa);
+                                                              Navigator.pop(context);
                                                         },
                                                         child: const Text(
                                                             "Salvar"))
@@ -252,7 +259,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               child: const Text("Editar"),
                             )
                           ],
-                        )
+                        ),
                       ],
                     ));
               }),
