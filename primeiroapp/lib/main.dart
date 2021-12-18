@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -211,11 +210,18 @@ class _MyHomePageState extends State<MyHomePage> {
                                       body: SingleChildScrollView(
                                         child: Form(
                                           child: Container(
+                                            decoration: BoxDecoration(
+                      border: Border(
+                        top:
+                            BorderSide(color: Colors.white, width: 15.0),
+                      ),
+                    ),
                                             child: Column(
                                               crossAxisAlignment:
-                                                  CrossAxisAlignment.stretch,
+                                                  CrossAxisAlignment.start,
                                               children: <Widget>[
                                                 TextField(
+                                                  
                                                   obscureText: false,
                                                   controller: editController,
                                                   decoration: InputDecoration(
