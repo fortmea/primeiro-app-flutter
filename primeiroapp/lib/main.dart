@@ -211,17 +211,17 @@ class _MyHomePageState extends State<MyHomePage> {
                                         child: Form(
                                           child: Container(
                                             decoration: BoxDecoration(
-                      border: Border(
-                        top:
-                            BorderSide(color: Colors.white, width: 15.0),
-                      ),
-                    ),
+                                              border: Border(
+                                                top: BorderSide(
+                                                    color: Colors.white,
+                                                    width: 15.0),
+                                              ),
+                                            ),
                                             child: Column(
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: <Widget>[
                                                 TextField(
-                                                  
                                                   obscureText: false,
                                                   controller: editController,
                                                   decoration: InputDecoration(
@@ -247,7 +247,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                                           editEntry(
                                                               tarefas[index],
                                                               ntarefa);
-                                                              Navigator.pop(context);
+                                                          Navigator.pop(
+                                                              context);
                                                         },
                                                         child: const Text(
                                                             "Salvar"))
