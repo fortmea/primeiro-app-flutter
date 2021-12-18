@@ -183,7 +183,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     child: Row(
                       children: <Widget>[
                         Container(
-                            width: MediaQuery.of(context).size.width / 2,
+                            width: MediaQuery.of(context).size.width - (MediaQuery.of(context).size.width/1.5),
                             height: MediaQuery.of(context).size.height / 15,
                             alignment: AlignmentDirectional.center,
                             child: Text(tarefas[index].values.last)),
