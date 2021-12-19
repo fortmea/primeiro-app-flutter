@@ -4,6 +4,7 @@ import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(const MyApp());
@@ -57,13 +58,30 @@ class _MyHomePageState extends State<MyHomePage> {
   final editController = TextEditingController();
   int _counter = 0;
   String tarefa = "";
-  List<Map<String, String>> tarefas = [];
-  void deleteEntry(Map<String, String> dTarefa) {
+  List<dynamic> tarefas = [];
+  @override
+  void initState() {
+    super.initState();
+    loadData();
+  }
+
+  loadData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      //print(json.decode(prefs.getString("lista")?.toString() ?? ""));
+      tarefas = (jsonDecode(prefs.getString("lista")?.toString() ?? "")
+          .map((e) => e as Map<String, dynamic>)
+          ?.toList());
+      _counter = tarefas.length;
+    });
+  }
+
+  void deleteEntry(Map<String, dynamic> dTarefa) async {
     if (tarefas.isNotEmpty) {
       if (tarefas.contains(dTarefa)) {
         setState(() {
           tarefas.remove(dTarefa);
-          _counter--;
+          _counter = tarefas.length;
         });
         Fluttertoast.showToast(
             msg: "Tarefa removida com sucesso",
@@ -73,6 +91,7 @@ class _MyHomePageState extends State<MyHomePage> {
             backgroundColor: Colors.red,
             textColor: Colors.white,
             fontSize: 16.0);
+        saveState();
       } else {
         Fluttertoast.showToast(
             msg: "Tarefa não encontrada",
@@ -86,7 +105,8 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void editEntry(Map<String, String> dTarefa, Map<String, String> nTarefa) {
+  void editEntry(
+      Map<String, dynamic> dTarefa, Map<String, dynamic> nTarefa) async {
     if (tarefas.isNotEmpty) {
       if (tarefas.contains(dTarefa)) {
         setState(() {
@@ -100,6 +120,7 @@ class _MyHomePageState extends State<MyHomePage> {
             backgroundColor: Colors.red,
             textColor: Colors.white,
             fontSize: 16.0);
+        saveState();
       } else {
         Fluttertoast.showToast(
             msg: "Tarefa não encontrada",
@@ -114,16 +135,16 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void _incrementCounter() {
+  void _incrementCounter() async {
     String id = (tarefas.length + 1).toString();
-
     if (myController.text != "") {
-      final Map<String, String> tarefa = {id: myController.text};
+      final Map<String, dynamic> tarefa = {id: myController.text};
       setState(() {
         tarefas.add(tarefa);
         _counter = tarefas.length;
         myController.text = "";
       });
+      saveState();
     } else {
       Fluttertoast.showToast(
           msg: "Tarefa vazia. Tente escrever algo",
@@ -134,6 +155,7 @@ class _MyHomePageState extends State<MyHomePage> {
           textColor: Colors.white,
           fontSize: 16.0);
     }
+    loadData();
   }
 
   @override
@@ -142,6 +164,12 @@ class _MyHomePageState extends State<MyHomePage> {
     myController.dispose();
     editController.dispose();
     super.dispose();
+  }
+
+  Future saveState() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('lista', jsonEncode(tarefas));
+    await prefs.setInt("counter", tarefas.length);
   }
 
   @override
@@ -211,6 +239,13 @@ class _MyHomePageState extends State<MyHomePage> {
                                       body: SingleChildScrollView(
                                         child: Form(
                                           child: Container(
+                                            decoration: BoxDecoration(
+                                              border: Border(
+                                                top: BorderSide(
+                                                    color: Colors.white,
+                                                    width: 15.0),
+                                              ),
+                                            ),
                                             child: Column(
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.stretch,
@@ -241,7 +276,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                                           editEntry(
                                                               tarefas[index],
                                                               ntarefa);
-                                                              Navigator.pop(context);
+                                                          Navigator.pop(
+                                                              context);
                                                         },
                                                         child: const Text(
                                                             "Salvar"))
