@@ -1,13 +1,19 @@
 import 'dart:convert';
-import 'dart:ffi';
+//import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/services.dart';
 
 void main() {
-  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Than we setup preferred orientations,
+  // and only after it finished we run our app
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
+      .then((value) => runApp(const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -69,9 +75,13 @@ class _MyHomePageState extends State<MyHomePage> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       //print(json.decode(prefs.getString("lista")?.toString() ?? ""));
-      tarefas = (jsonDecode(prefs.getString("lista")?.toString() ?? "")
-          .map((e) => e as Map<String, dynamic>)
-          ?.toList());
+      try {
+        tarefas = (jsonDecode(prefs.getString("lista")?.toString() ?? "{}")
+            .map((e) => e as Map<String, dynamic>)
+            ?.toList());
+      } catch (e) {
+        print(e);
+      }
       _counter = tarefas.length;
     });
   }
@@ -113,21 +123,21 @@ class _MyHomePageState extends State<MyHomePage> {
           tarefas[tarefas.indexOf(dTarefa)] = nTarefa;
         });
         Fluttertoast.showToast(
-            msg: "Tarefa editada com sucesso",
+            msg: "Tarefa editada com sucesso!",
             toastLength: Toast.LENGTH_SHORT,
             gravity: ToastGravity.BOTTOM,
             timeInSecForIosWeb: 1,
-            backgroundColor: Colors.red,
+            backgroundColor: Colors.blueGrey,
             textColor: Colors.white,
             fontSize: 16.0);
         saveState();
       } else {
         Fluttertoast.showToast(
-            msg: "Tarefa não encontrada",
+            msg: "Tarefa não encontrada.",
             toastLength: Toast.LENGTH_SHORT,
             gravity: ToastGravity.BOTTOM,
             timeInSecForIosWeb: 1,
-            backgroundColor: Colors.red,
+            backgroundColor: Colors.blueGrey,
             textColor: Colors.white,
             fontSize: 16.0);
       }
@@ -147,11 +157,11 @@ class _MyHomePageState extends State<MyHomePage> {
       saveState();
     } else {
       Fluttertoast.showToast(
-          msg: "Tarefa vazia. Tente escrever algo",
+          msg: "Tarefa vazia. Tente escrever algo!",
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
           timeInSecForIosWeb: 1,
-          backgroundColor: Colors.red,
+          backgroundColor: Colors.blueGrey,
           textColor: Colors.white,
           fontSize: 16.0);
     }
@@ -181,17 +191,18 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: Column(mainAxisAlignment: MainAxisAlignment.start, children: <
             Widget>[
-          const Text(
+          Text(
             'Lista de tarefas, atualmente contem:',
+            style: Theme.of(context).textTheme.headline6,
           ),
           Text(
-            '$_counter tarefas',
-            style: Theme.of(context).textTheme.bodyText2,
+            '$_counter tarefa(s)',
+            style: Theme.of(context).textTheme.headline6,
           ),
           TextField(
             obscureText: false,
             controller: myController,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               border: OutlineInputBorder(),
               labelText: 'Tarefa a ser adicionada',
             ),
@@ -200,104 +211,152 @@ class _MyHomePageState extends State<MyHomePage> {
               shrinkWrap: true,
               itemCount: tarefas.length,
               itemBuilder: (context, index) {
-                return Container(
-                    decoration: BoxDecoration(
-                      border: Border(
-                        bottom:
-                            BorderSide(color: Colors.cyanAccent, width: 3.0),
-                      ),
+                return ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: MediaQuery.of(context).size.height / 15,
+                      minWidth: MediaQuery.of(context).size.width / 2,
+                      maxHeight: MediaQuery.of(context).size.height / 2,
+                      maxWidth: MediaQuery.of(context).size.width / 2,
                     ),
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height / 15,
-                    child: Row(
-                      children: <Widget>[
-                        Container(
-                            width: MediaQuery.of(context).size.width / 2,
-                            height: MediaQuery.of(context).size.height / 15,
-                            alignment: AlignmentDirectional.center,
-                            child: Text(tarefas[index].values.last)),
-                        ButtonBar(
-                          children: [
-                            TextButton(
-                              onPressed: () {
-                                deleteEntry(tarefas[index]);
-                              },
-                              child: const Text("Apagar"),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                showModalBottomSheet(
-                                  context: context,
-                                  enableDrag: true,
-                                  isDismissible: true,
-                                  useRootNavigator: true,
-                                  builder: (BuildContext ctx) {
-                                    return Scaffold(
-                                      backgroundColor: Colors.transparent,
-                                      resizeToAvoidBottomInset:
-                                          true, // important
-                                      body: SingleChildScrollView(
-                                        child: Form(
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              border: Border(
-                                                top: BorderSide(
-                                                    color: Colors.white,
-                                                    width: 15.0),
-                                              ),
-                                            ),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.stretch,
-                                              children: <Widget>[
-                                                TextField(
-                                                  obscureText: false,
-                                                  controller: editController,
-                                                  decoration: InputDecoration(
-                                                    border:
-                                                        OutlineInputBorder(),
-                                                    labelText:
-                                                        'Nova descrição para a tarefa',
+                    child: Container(
+                        decoration: const BoxDecoration(
+                            border: Border(
+                          bottom:
+                              BorderSide(color: Colors.cyanAccent, width: 3.0),
+                        )),
+                        child: Row(
+                          children: <Widget>[
+                            Expanded(
+                                child: Row(children: [
+                              Expanded(
+                                  child: ConstrainedBox(
+                                      constraints: BoxConstraints(
+                                        minHeight:
+                                            MediaQuery.of(context).size.height /
+                                                15,
+                                        minWidth:
+                                            MediaQuery.of(context).size.width /
+                                                2,
+                                        maxHeight:
+                                            MediaQuery.of(context).size.height /
+                                                5,
+                                        maxWidth:
+                                            MediaQuery.of(context).size.width /
+                                                2,
+                                      ),
+                                      child: Text(tarefas[index].values.last)))
+                            ])),
+                            Row(children: [
+                              ButtonBar(
+                                children: [
+                                  TextButton.icon(
+                                      icon: const Icon(Icons.copy),
+                                      onPressed: () {
+                                        Clipboard.setData(ClipboardData(
+                                            text: tarefas[index].values.last));
+                                        Fluttertoast.showToast(
+                                            msg: "Tarefa copiada com sucesso!",
+                                            toastLength: Toast.LENGTH_SHORT,
+                                            gravity: ToastGravity.BOTTOM,
+                                            timeInSecForIosWeb: 1,
+                                            backgroundColor: Colors.blueGrey,
+                                            textColor: Colors.white,
+                                            fontSize: 16.0);
+                                      },
+                                      label: const Text("Copiar")),
+                                  TextButton.icon(
+                                    icon: const Icon(Icons.edit),
+                                    onPressed: () {
+                                      editController.text =
+                                          tarefas[index].values.last;
+                                      showModalBottomSheet(
+                                        context: context,
+                                        enableDrag: true,
+                                        isDismissible: true,
+                                        useRootNavigator: true,
+                                        builder: (BuildContext ctx) {
+                                          return Scaffold(
+                                            backgroundColor: Colors.transparent,
+                                            resizeToAvoidBottomInset:
+                                                true, // important
+                                            body: SingleChildScrollView(
+                                              child: Form(
+                                                child: Container(
+                                                  decoration:
+                                                      const BoxDecoration(
+                                                    border: Border(
+                                                      top: BorderSide(
+                                                          color: Colors.white,
+                                                          width: 15.0),
+                                                    ),
+                                                  ),
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .center,
+                                                    children: <Widget>[
+                                                      TextField(
+                                                        obscureText: false,
+                                                        controller:
+                                                            editController,
+                                                        decoration:
+                                                            const InputDecoration(
+                                                          border:
+                                                              OutlineInputBorder(),
+                                                          labelText:
+                                                              'Nova descrição para a tarefa',
+                                                        ),
+                                                      ),
+                                                      ButtonBar(
+                                                        children: [
+                                                          TextButton(
+                                                              onPressed: () {
+                                                                Map<String,
+                                                                        String>
+                                                                    ntarefa = {
+                                                                  tarefas[index]
+                                                                          .entries
+                                                                          .first
+                                                                          .value:
+                                                                      editController
+                                                                          .text
+                                                                };
+                                                                editEntry(
+                                                                    tarefas[
+                                                                        index],
+                                                                    ntarefa);
+                                                                Navigator.pop(
+                                                                    context);
+                                                              },
+                                                              child: const Text(
+                                                                  "Salvar"))
+                                                        ],
+                                                      )
+                                                    ],
                                                   ),
                                                 ),
-                                                ButtonBar(
-                                                  children: [
-                                                    TextButton(
-                                                        onPressed: () {
-                                                          Map<String, String>
-                                                              ntarefa = {
-                                                            tarefas[index]
-                                                                    .entries
-                                                                    .first
-                                                                    .value:
-                                                                editController
-                                                                    .text
-                                                          };
-                                                          editEntry(
-                                                              tarefas[index],
-                                                              ntarefa);
-                                                          Navigator.pop(
-                                                              context);
-                                                        },
-                                                        child: const Text(
-                                                            "Salvar"))
-                                                  ],
-                                                )
-                                              ],
+                                              ),
                                             ),
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                );
-                              },
-                              child: const Text("Editar"),
-                            )
+                                          );
+                                        },
+                                      );
+                                    },
+                                    label: const Text("Editar"),
+                                  ),
+                                  TextButton.icon(
+                                    icon: const Icon(Icons.delete),
+                                    style: TextButton.styleFrom(
+                                        primary: Colors.red),
+                                    onPressed: () {
+                                      deleteEntry(tarefas[index]);
+                                    },
+                                    label: const Text("Apagar"),
+                                  )
+                                ],
+                              )
+                            ]),
                           ],
-                        ),
-                      ],
-                    ));
+                        )));
               }),
         ]),
       ),
