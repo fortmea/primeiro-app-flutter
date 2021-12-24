@@ -1,9 +1,12 @@
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart';
+import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -87,7 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
       //print(json.decode(prefs.getString("lista")?.toString() ?? ""));
       try {
         tarefas = (jsonDecode(prefs.getString("lista")?.toString() ?? "{}")
-            .map((e) => e as Map<String, dynamic>)
+            .map((e) => e as Map<String, dynamic >)
             ?.toList());
       } catch (e) {
         print(e);
@@ -98,7 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _scrollToTop() {
     _scrollController.animateTo(0,
-        duration: Duration(seconds: 1), curve: Curves.linear);
+        duration: const Duration(seconds: 1), curve: Curves.linear);
   }
 
   void deleteEntry(Map<String, dynamic> dTarefa) async {
@@ -197,6 +200,10 @@ class _MyHomePageState extends State<MyHomePage> {
     await prefs.setInt("counter", tarefas.length);
   }
 
+  _onSelectionChanged() {
+    return;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -225,17 +232,51 @@ class _MyHomePageState extends State<MyHomePage> {
                   labelText: 'Tarefa a ser adicionada',
                 ),
               ),
-              ButtonBar(children: [
-                TextButton.icon(
-                    onPressed: _incrementCounter,
-                    icon: const Icon(Icons.add_circle_outline_rounded),
-                    label: const Text("Adicionar"))
-              ]),
+              ButtonBar(
+                  alignment: MainAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ElevatedButton.icon(
+                        onPressed: _incrementCounter,
+                        icon: const Icon(Icons.add_circle_outline_rounded),
+                        label: const Text("Adicionar")),
+                    ElevatedButton.icon(
+                        onPressed: () {
+                          DatePicker.showDatePicker(context,
+                              showTitleActions: true,
+                              minTime: DateTime(2000, 1, 1), onChanged: (date) {
+                            print('change $date');
+                          }, onConfirm: (date) {
+                            print('confirm $date');
+                          },
+                              currentTime: DateTime.now(),
+                              locale: LocaleType.pt);
+                        },
+                        icon: const Icon(Icons.date_range),
+                        label: const Text("Data")),
+                    ElevatedButton.icon(
+                        onPressed: () {
+                          DatePicker.showTimePicker(context,
+                              theme: DatePickerTheme(
+                                containerHeight: 210.0,
+                              ),
+                              showTitleActions: true, onConfirm: (time) {
+                            print('confirm $time');
+                            setState(() {});
+                          },
+                              currentTime: DateTime.now(),
+                              locale: LocaleType.pt);
+                          setState(() {});
+                        },
+                        icon: const Icon(Icons.timer),
+                        label: const Text("Horário")),
+                    
+                  ]),
               SizedBox(
                 width: MediaQuery.of(context).size.width,
                 height: 3.0,
                 child: const DecoratedBox(
-                    decoration: const BoxDecoration(color: Colors.cyanAccent)),
+                    decoration: BoxDecoration(color: Colors.cyanAccent)),
               ),
               ListView.builder(
                   physics: NeverScrollableScrollPhysics(),
@@ -414,8 +455,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                           );
                                         },
                                         label: const Text("Editar",
-                                            style: TextStyle(
-                                                fontSize: 13.0)),
+                                            style: TextStyle(fontSize: 13.0)),
                                       ),
                                       TextButton.icon(
                                         icon: const Icon(Icons.delete),
