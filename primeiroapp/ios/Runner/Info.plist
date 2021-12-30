@@ -4,6 +4,7 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	
 	<key>CFBundleDisplayName</key>
 	<string>Primeiroapp</string>
 	<key>CFBundleExecutable</key>
@@ -43,5 +44,10 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>LSApplicationQueriesSchemes</key>
+<array>
+  <string>https</string>
+  <string>http</string>
+</array>
 </dict>
 </plist>

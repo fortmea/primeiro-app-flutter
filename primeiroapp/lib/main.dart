@@ -4,6 +4,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart';
+import 'package:simple_icons/simple_icons.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -79,6 +81,11 @@ class _MyHomePageState extends State<MyHomePage> {
         });
       });
     loadData();
+  }
+
+  openGithug() async {
+    const url = "https://github.com/fortmea/primeiro-app-flutter";
+    if (await canLaunch(url)) await launch(url, forceWebView: true);
   }
 
   loadData() async {
@@ -225,17 +232,19 @@ class _MyHomePageState extends State<MyHomePage> {
                   labelText: 'Tarefa a ser adicionada',
                 ),
               ),
-              ButtonBar(children: [
-                TextButton.icon(
-                    onPressed: _incrementCounter,
-                    icon: const Icon(Icons.add_circle_outline_rounded),
-                    label: const Text("Adicionar"))
+              ButtonBar(mainAxisSize: MainAxisSize.max, children: [
+                SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    child: ElevatedButton.icon(
+                        onPressed: _incrementCounter,
+                        icon: const Icon(Icons.add_circle_outline_rounded),
+                        label: const Text("Adicionar")))
               ]),
               SizedBox(
                 width: MediaQuery.of(context).size.width,
                 height: 3.0,
                 child: const DecoratedBox(
-                    decoration: const BoxDecoration(color: Colors.cyanAccent)),
+                    decoration: BoxDecoration(color: Colors.grey)),
               ),
               ListView.builder(
                   physics: NeverScrollableScrollPhysics(),
@@ -303,7 +312,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                     buttonPadding: new EdgeInsets.all(0.8),
                                     buttonMinWidth: 5,
                                     children: [
-                                      TextButton.icon(
+                                      ElevatedButton.icon(
                                           icon: const Icon(Icons.copy),
                                           onPressed: () {
                                             Clipboard.setData(ClipboardData(
@@ -324,7 +333,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                           label: const Text("Copiar",
                                               style:
                                                   TextStyle(fontSize: 13.0))),
-                                      TextButton.icon(
+                                      ElevatedButton.icon(
                                         icon: const Icon(Icons.edit),
                                         onPressed: () {
                                           editController.text =
@@ -336,8 +345,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                             useRootNavigator: true,
                                             builder: (BuildContext ctx) {
                                               return Scaffold(
-                                                backgroundColor:
-                                                    Colors.transparent,
                                                 resizeToAvoidBottomInset:
                                                     true, // important
                                                 body: SingleChildScrollView(
@@ -371,7 +378,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                                           ),
                                                           ButtonBar(
                                                             children: [
-                                                              TextButton.icon(
+                                                              ElevatedButton
+                                                                  .icon(
                                                                 icon: const Icon(
                                                                     Icons
                                                                         .save_rounded),
@@ -414,12 +422,11 @@ class _MyHomePageState extends State<MyHomePage> {
                                           );
                                         },
                                         label: const Text("Editar",
-                                            style: TextStyle(
-                                                fontSize: 13.0)),
+                                            style: TextStyle(fontSize: 13.0)),
                                       ),
-                                      TextButton.icon(
+                                      ElevatedButton.icon(
                                         icon: const Icon(Icons.delete),
-                                        style: TextButton.styleFrom(
+                                        style: ElevatedButton.styleFrom(
                                             primary: Colors.red),
                                         onPressed: () {
                                           deleteEntry(tarefas[index]);
@@ -433,6 +440,24 @@ class _MyHomePageState extends State<MyHomePage> {
                               ],
                             )));
                   }),
+              SizedBox(
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height / 15,
+                child: const DecoratedBox(
+                    decoration: BoxDecoration()),
+              ),
+              SizedBox(
+                  child: ElevatedButton.icon(
+                      onPressed: openGithug,
+                      icon: Icon(
+                        SimpleIcons.github,
+                        color: Colors.white,
+                      ),
+                      style: ElevatedButton.styleFrom(primary: Colors.black),
+                      label: const Text(
+                        "Visitar projeto no Github",
+                        style: TextStyle(color: Colors.white),
+                      )))
             ])),
       ),
       // This trailing comma makes auto-formatting nicer for build methods.
